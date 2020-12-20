@@ -1,4 +1,11 @@
 import asyncio
+import logging
+
+
+logging.basicConfig(
+    format='%(levelname)s:sender:%(message)s',
+    level=logging.DEBUG,
+)
 
 
 async def login_to_chat():
@@ -7,13 +14,13 @@ async def login_to_chat():
         5050,
     )
     print('Authenticate in chat')
-    token = 'your_token\n'
+    token = 'my_token'
     writer.write(token.encode())
     await writer.drain()
 
     while True:
         data = await reader.readline()
-        print(f'Received: {data.decode()!r}')
+        logging.debug(data.decode())
 
         writer.write('Hello, I Andrew!!!!\n\n'.encode())
         await writer.drain()

@@ -2,6 +2,13 @@ import asyncio
 import aiofiles
 import datetime
 import argparse
+import logging
+
+
+logging.basicConfig(
+    format='%(levelname)s:%(filename)s:%(message)s',
+    level=logging.DEBUG,
+)
 
 
 async def save_data_to_log_file(data, file_path):
@@ -27,7 +34,7 @@ async def echo_client_messages_from_chat(host, port, history_path):
 
         data = await reader.readline()
         await save_data_to_log_file(data.decode(), history_path)
-        print(data.decode())
+        logging.debug(data.decode())
 
 
 if __name__ == '__main__':
