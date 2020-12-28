@@ -9,55 +9,73 @@ logging.basicConfig(
 )
 
 
-async def login_to_chat(user_token):
+async def submit_message(reader, writer, message):
+    """Submit message to chat"""
+    data = await reader.readline()
+    logging.info(data)
+
+    writer.write(f'{message}\n\n'.encode())
+    await writer.drain()
+
+    data = await reader.readline()
+    logging.info(data)
+
+
+async def authorise(reader, writer, account_hash):
+    """Login to chat with user account hash
+
+    If account_hash is incorrect, it return an error,
+    if correct, it return user credentials
+    """
+    data = await reader.readline()
+    logging.info(data)
+
+    writer.write(f'{account_hash}\n'.encode())
+    await writer.drain()
+
+    credentials = await reader.readline()
+    logging.info(credentials)
+
+    assert json.loads(credentials) is not None, \
+        'Неизвестный токен. ' \
+        'Проверьте его или зарегистрируйте заново.'
+
+    return credentials
+
+
+async def register(reader, writer, nickname):
+    """Register a new user in the chat and get a account_hash"""
+    data = await reader.readline()
+    logging.info(data)
+
+    writer.write('\n'.encode())
+    await writer.drain()
+
+    data = await reader.readline()
+    logging.info(data)
+
+    writer.write(f'{nickname}\n'.encode())
+    await writer.drain()
+
+    data = await reader.readline()
+    logging.info(data)
+    user_credentials = json.loads(data)
+    account_hash = user_credentials.get('account_hash')
+
+    writer.close()
+    await writer.wait_closed()
+
+    return account_hash
+
+
+async def main():
     reader, writer = await asyncio.open_connection(
         'minechat.dvmn.org',
         5050,
     )
-    print('Authenticate in chat')
-    token = user_token + '\n'
-    writer.write(token.encode())
-    await writer.drain()
-
-    while True:
-        data = await reader.readline()
-        formatted_data = data.decode().strip()
-
-        if formatted_data == 'null':
-            assert json.loads(formatted_data) is not None, \
-                'Неизвестный токен. ' \
-                'Проверьте его или зарегистрируйте заново.'
-
-        logging.debug(formatted_data)
-
-        writer.write('Hello, I Andrew!!!!\n\n'.encode())
-        await writer.drain()
-
-
-async def register(host, port):
-    """Register a new user in the chat and get a token"""
-    reader, writer = await asyncio.open_connection(
-        host,
-        port,
-    )
-    writer.write('\n\n'.encode())
-    await writer.drain()
-
-    while True:
-        data = await reader.readline()
-        try:
-            user_credentials = json.loads(data)
-            account_hash = user_credentials.get('account_hash')
-
-            writer.close()
-            await writer.wait_closed()
-
-            return account_hash
-
-        except json.decoder.JSONDecodeError:
-            logging.warning('Invalid format to json')
+    await authorise(reader, writer, '')
+    await submit_message(reader, writer, 'Привет всем!!!!')
 
 
 if __name__ == '__main__':
-    # asyncio.run(login_to_chat(''))
-    asyncio.run(register('minechat.dvmn.org', 5050))
+    asyncio.run(main())
