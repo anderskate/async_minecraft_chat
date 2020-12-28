@@ -11,7 +11,7 @@ Download the repository
 
 Open the folder in the terminal:
 ```bash
-cd connect_to_chat
+cd async_minecraft_chat
 ```
 Install requirements libraries and packages:
 ```bash
