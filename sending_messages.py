@@ -14,7 +14,8 @@ async def submit_message(reader, writer, message):
     data = await reader.readline()
     logging.info(data)
 
-    writer.write(f'{message}\n\n'.encode())
+    formatting_message = message.replace('\n', '')
+    writer.write(f'{formatting_message}\n\n'.encode())
     await writer.drain()
 
     data = await reader.readline()
@@ -54,7 +55,8 @@ async def register(reader, writer, nickname):
     data = await reader.readline()
     logging.info(data)
 
-    writer.write(f'{nickname}\n'.encode())
+    formatting_nickname = nickname.replace('\n', '')
+    writer.write(f'{formatting_nickname}\n'.encode())
     await writer.drain()
 
     data = await reader.readline()
