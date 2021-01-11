@@ -23,16 +23,21 @@ def chat_is_available(host, port):
 async def get_connection(host, port, timeout=10):
     """Get reader and writer objects.
 
-    At the end of the work, be sure to close the writer object connection.
+    At the end of the work, be sure to close
+    the writer object connection.
+
+    By default, the timeout is set to 0 seconds
+    so that the first reconnection attempt is fast.
+    Then the value is taken from the specified in the arguments.
     """
+    default_timeout = 0
 
     while not chat_is_available(host, port):
-        chat_is_available(host, port)
-
         logger.warning(
-            f'No chat connection. Reconnect after {timeout} seconds.'
+            f'No chat connection. Reconnect after {default_timeout} seconds.'
             )
-        await asyncio.sleep(timeout)
+        await asyncio.sleep(default_timeout)
+        default_timeout = timeout
 
     reader, writer = await asyncio.open_connection(
             host,
