@@ -31,7 +31,12 @@ async def echo_client_messages_from_chat(host, port, history_path):
             logger.debug(data.decode())
 
 
-if __name__ == '__main__':
+async def main():
+    """Main function from which the necessary components are launched.
+
+    Configure logging, parsing incoming user data,
+    as well as a function for getting client messages.
+    """
     logging.basicConfig(
         format='%(levelname)s:%(filename)s:%(message)s',
         level=logging.DEBUG,
@@ -61,4 +66,10 @@ if __name__ == '__main__':
     port = args.port
     history_path = args.history
 
-    asyncio.run(echo_client_messages_from_chat(host, port, history_path))
+    await echo_client_messages_from_chat(host, port, history_path)
+
+
+if __name__ == '__main__':
+    asyncio.run(
+        main()
+    )

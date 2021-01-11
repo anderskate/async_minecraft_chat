@@ -1,7 +1,6 @@
 from contextlib import asynccontextmanager
 import asyncio
 import socket
-import requests
 import logging
 
 
@@ -10,15 +9,18 @@ logger = logging.getLogger(__file__)
 
 def chat_is_available(host, port):
     """Check the chat connection for the given host and port."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        response = requests.get(f'http://{host}:{port}')
+        s.connect((host, port))
+        # Shutdown both halves of the connection
+        s.shutdown(2)
         return True
-    except requests.exceptions.ConnectionError:
+    except socket.gaierror:
         return False
 
 
 @asynccontextmanager
-async def get_connection(host, port, timeout=0):
+async def get_connection(host, port, timeout=10):
     """Get reader and writer objects.
 
     At the end of the work, be sure to close the writer object connection.
@@ -26,10 +28,6 @@ async def get_connection(host, port, timeout=0):
 
     while not chat_is_available(host, port):
         chat_is_available(host, port)
-
-        # After an unsuccessful chat connection, 
-        # add another 10 seconds of timeout.
-        timeout += 10
 
         logger.warning(
             f'No chat connection. Reconnect after {timeout} seconds.'
