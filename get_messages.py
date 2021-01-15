@@ -22,10 +22,11 @@ async def save_data_to_log_file(data, file_path):
 
 async def echo_client_messages_from_chat(host, port, history_path):
     """Show messages from chat."""
-    await save_data_to_log_file('Установлено соединение', history_path)
-    while True:
-        async with get_connection(host, port) as connection:
-            reader, writer = connection
+    async with get_connection(host, port, timeout=40) as connection:
+        reader, writer = connection
+        await save_data_to_log_file('Установлено соединение', history_path)
+
+        while True:
             data = await reader.readline()
             await save_data_to_log_file(data.decode(), history_path)
             logger.debug(data.decode())

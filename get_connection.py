@@ -20,7 +20,7 @@ def chat_is_available(host, port):
 
 
 @asynccontextmanager
-async def get_connection(host, port, timeout=10):
+async def get_connection(host, port, timeout=30):
     """Get reader and writer objects.
 
     At the end of the work, be sure to close
